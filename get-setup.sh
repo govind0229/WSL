@@ -384,7 +384,7 @@ do_install() {
 					$sh_c "pear channel-update pear.php.net"
 					$sh_c "pear install Net_Nmap"
 
-					if [ $dist_version >= 8 ] then
+					if [ $dist_version >= 8 ]; then
 					$su_c "$pkg_manager clean all"
 					fi
 					
@@ -404,7 +404,7 @@ do_install() {
 					$sh_c "pear channel-update pear.php.net"
 					$sh_c "pear install Net_Nmap"
 
-					if [ $dist_version >= 8 ] then
+					if [ $dist_version >= 8 ]; then
 					$su_c "$pkg_manager clean all"
 					fi
 					
