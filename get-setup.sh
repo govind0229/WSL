@@ -347,7 +347,7 @@ do_install() {
 				echo "Error: Unable to curl repository file $remi_repo, is it valid?"
 				exit 1
 			fi
-			if [ "$lsb_dist" = "fedora" ] || [ "$dist_version" >= 8 ]; then
+			if [ "$lsb_dist" = "fedora" ] && [ "$dist_version" >= 8 ]; then
 				pkg_manager="dnf"
 				config_manager="dnf config-manager"
 				enable_channel_flag="--set-enabled"
