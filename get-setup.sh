@@ -338,7 +338,7 @@ do_install() {
 					$su_c "apt-get install mariadb-server mariadb-client -y  >/dev/null"
 					$sh_c 'apt-get update -y >/dev/null'
 					$su_c "apt-get clean"
-					
+
 				fi
             )
 			echo_run_as_nonroot
@@ -378,17 +378,13 @@ do_install() {
 				pkg_epel="epel-release"
 			fi
 			(
-				if ! is_dry_run; then
-					set -x
-				fi
-				
 				if is_wsl; then
 					echo "WSL DETECTED: We recommend using Httpd for Windows."
 					
 					$sh_c "$pkg_manager install -y  $pre_reqs $pkg_epel"
 					$sh_c "$pkg_manager makecache"
 					$sh_c "$pkg_manager -y  install httpd mod_ssl mod_http2"
-					$sh_c "$pkg_manager install -y  $yum_repo"
+					$sh_c "$pkg_manager install -y  $remi_repo"
 					$sh_c "$pkg_manager -y  module install php:remi-7.4"
 					$sh_c "$pkg_manager -y  install php php-{cli,common,devel,fedora-autoloader.noarch,gd,gmp,json,ldap,mbstring,mcrypt,mysqlnd,opcache,pdo,pear.noarch,pecl-amqp,pecl-ssh2,pecl-zip,process,snmp,xml,pecl-mongodb,pecl-amqp}"
 					$sh_c "sed -i '/mpm_prefork_module/ s/^#//' /etc/httpd/conf.modules.d/00-mpm.conf && sed -i '/mpm_event_module/ s/^/#/g' /etc/httpd/conf.modules.d/00-mpm.conf" 
@@ -408,7 +404,7 @@ do_install() {
 					$sh_c "$pkg_manager install -y  $pre_reqs $pkg_epel"
 					$sh_c "$pkg_manager makecache"
 					$sh_c "$pkg_manager -y  install httpd mod_ssl mod_http2"
-					$sh_c "$pkg_manager install -y  $yum_repo"
+					$sh_c "$pkg_manager install -y  $remi_repo"
 					$sh_c "$pkg_manager -y  module install php:remi-7.4"
 					$sh_c "$pkg_manager -y  install php php-{cli,common,devel,fedora-autoloader.noarch,gd,gmp,json,ldap,mbstring,mcrypt,mysqlnd,opcache,pdo,pear.noarch,pecl-amqp,pecl-ssh2,pecl-zip,process,snmp,xml,pecl-mongodb,pecl-amqp}"
 					$sh_c "sed -i '/mpm_prefork_module/ s/^#//' /etc/httpd/conf.modules.d/00-mpm.conf && sed -i '/mpm_event_module/ s/^/#/g' /etc/httpd/conf.modules.d/00-mpm.conf" 
