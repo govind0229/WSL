@@ -355,7 +355,7 @@ do_install() {
 				pre_reqs="dnf-plugins-core"
 				pkg_suffix="fc$dist_version"
 				pkg_epel="epel-release"
-			elif [ "$lsb_dist" = "fedora" ] || [ "$dist_version" = '8' ]; then
+			elif [ "$lsb_dist" = "centos" ] || [ "$dist_version" = '8' ]; then
 				pkg_manager="dnf"
 				config_manager="dnf config-manager"
 				enable_channel_flag="--set-enabled"
@@ -378,8 +378,10 @@ do_install() {
 				fi
 				
 				if is_wsl; then
-					
+					echo ''
 					echo "WSL DETECTED: We recommend using apache2 for Windows."
+					echo ''
+
 					$sh_c "$pkg_manager install -y -q $pre_reqs $pkg_epel"
 					$sh_c "$pkg_manager makecache"
 					$sh_c "$pkg_manager -y -q install httpd mod_ssl mod_http2"
@@ -392,7 +394,7 @@ do_install() {
 					$sh_c "pear channel-update pear.php.net"
 					$sh_c "pear install Net_Nmap"
 
-					if [ $dist_version >= 8 ]; then
+					if [ $dist_version = '8' ]; then
 					$su_c "$pkg_manager clean all"
 					fi
 					
@@ -412,7 +414,7 @@ do_install() {
 					$sh_c "pear channel-update pear.php.net"
 					$sh_c "pear install Net_Nmap"
 
-					if [ $dist_version >= 8 ]; then
+					if [ $dist_version = '8' ]; then
 					$su_c "$pkg_manager clean all"
 					fi
 					
@@ -420,7 +422,6 @@ do_install() {
 					$su_c "echo "extension=ixed.7.4.lin" | tee -a /etc/php.ini"
 
 				fi
-
 			)
 			echo_run_as_nonroot
 			exit 0
