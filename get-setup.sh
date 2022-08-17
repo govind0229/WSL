@@ -1,31 +1,6 @@
 #!/bin/sh
 set -e
 
-DRY_RUN=${DRY_RUN:-}
-while [ $# -gt 0 ]; do
-	case "$1" in
-		--mirror)
-			mirror="$2"
-			shift
-			;;
-		--dry-run)
-			DRY_RUN=1
-			;;
-		--*)
-			echo "Illegal option $1"
-			;;
-	esac
-	shift $(( $# > 0 ? 1 : 0 ))
-done
-
-is_dry_run() {
-	if [ -z "$DRY_RUN" ]; then
-		return 1
-	else
-		return 0
-	fi
-}
-
 is_wsl() {
 	case "$(uname -r)" in
 	*microsoft* ) true ;; # WSL 2
@@ -251,10 +226,6 @@ do_install() {
 		fi
 	fi
 
-	if is_dry_run; then
-		sh_c="echo"
-	fi
-
 	# perform some very rudimentary platform detection
 	lsb_dist=$( get_distribution )
 	lsb_dist="$(echo "$lsb_dist" | tr '[:upper:]' '[:lower:]')"
@@ -335,23 +306,40 @@ do_install() {
 				pre_reqs="$pre_reqs gnupg"
 			fi
 			(
-				if ! is_dry_run; then
-					set -x
-				fi
-				$sh_c 'apt-get update -y>/dev/null'
-                $sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y  $pre_reqs >/dev/null"
-				$sh_c "apt-get install apache2 nmap -y  >/dev/null"
-                $sh_c "apt-get install php-{cli,pear,dev,common,gd,gmp,json,ldap,mbstring,mysqlnd,opcache,pdo,pear,ssh2,snmp,xml,zip,mongodb,amqp,mcrypt} -y  >/dev/null"
-                $sh_c "DEBIAN_FRONTEND=noninteractive pecl channel-update pear.php.net >/dev/null"
-                $sh_c "DEBIAN_FRONTEND=noninteractive pear install Net_Nmap >/dev/null"
-                $sh_c "apt-get install rabbitmq-server erlang mongodb -y  >/dev/null"
-				$su_c "apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'"
-				$su_c "add-apt-repository 'deb [arch=amd64] http://mariadb.mirror.globo.tech/repo/10.9/ubuntu focal main'"
-				$su_c "apt update -y  >/dev/null"
-				$su_c "apt-get install mariadb-server mariadb-client -y  >/dev/null"
-				$sh_c 'apt-get update -y >/dev/null'
-				$su_c "apt-get clean"
+				if ! is_wsl; then
 				
+					echo "WSL DETECTED: We recommend using apache2 for Windows."
+
+					$sh_c 'apt-get update -y>/dev/null'
+					$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y  $pre_reqs >/dev/null"
+					$sh_c "apt-get install apache2 nmap -y  >/dev/null"
+					$sh_c "apt-get install php-{cli,pear,dev,common,gd,gmp,json,ldap,mbstring,mysqlnd,opcache,pdo,pear,ssh2,snmp,xml,zip,mongodb,amqp,mcrypt} -y  >/dev/null"
+					$sh_c "DEBIAN_FRONTEND=noninteractive pecl channel-update pear.php.net >/dev/null"
+					$sh_c "DEBIAN_FRONTEND=noninteractive pear install Net_Nmap >/dev/null"
+					$sh_c "apt-get install rabbitmq-server erlang mongodb -y  >/dev/null"
+					$su_c "apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'"
+					$su_c "add-apt-repository 'deb [arch=amd64] http://mariadb.mirror.globo.tech/repo/10.9/ubuntu focal main'"
+					$su_c "apt update -y  >/dev/null"
+					$su_c "apt-get install mariadb-server mariadb-client -y  >/dev/null"
+					$sh_c 'apt-get update -y >/dev/null'
+					$su_c "apt-get clean"
+				else
+
+					$sh_c 'apt-get update -y>/dev/null'
+					$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y  $pre_reqs >/dev/null"
+					$sh_c "apt-get install apache2 nmap -y  >/dev/null"
+					$sh_c "apt-get install php-{cli,pear,dev,common,gd,gmp,json,ldap,mbstring,mysqlnd,opcache,pdo,pear,ssh2,snmp,xml,zip,mongodb,amqp,mcrypt} -y  >/dev/null"
+					$sh_c "DEBIAN_FRONTEND=noninteractive pecl channel-update pear.php.net >/dev/null"
+					$sh_c "DEBIAN_FRONTEND=noninteractive pear install Net_Nmap >/dev/null"
+					$sh_c "apt-get install rabbitmq-server erlang mongodb -y  >/dev/null"
+					$su_c "apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'"
+					$su_c "add-apt-repository 'deb [arch=amd64] http://mariadb.mirror.globo.tech/repo/10.9/ubuntu focal main'"
+					$su_c "apt update -y  >/dev/null"
+					$su_c "apt-get install mariadb-server mariadb-client -y  >/dev/null"
+					$sh_c 'apt-get update -y >/dev/null'
+					$su_c "apt-get clean"
+					
+				fi
             )
 			echo_run_as_nonroot
 			exit 0
@@ -395,7 +383,7 @@ do_install() {
 				fi
 				
 				if is_wsl; then
-					echo "WSL DETECTED: We recommend using apache2 for Windows."
+					echo "WSL DETECTED: We recommend using Httpd for Windows."
 					
 					$sh_c "$pkg_manager install -y  $pre_reqs $pkg_epel"
 					$sh_c "$pkg_manager makecache"
