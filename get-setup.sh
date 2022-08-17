@@ -341,12 +341,13 @@ do_install() {
 			;;
 		centos|fedora|rhel)
 		
-			yum_repo="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
-			if ! curl -Ifs "$yum_repo" > /dev/null; then
-				echo "Error: Unable to curl repository file $yum_repo, is it valid?"
+			remi_repo="https://rpms.remirepo.net/enterprise/remi-release-8.rpm"
+			epel_repo="https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
+			if ! curl -Ifs "$remi_repo" > /dev/null; then
+				echo "Error: Unable to curl repository file $remi_repo, is it valid?"
 				exit 1
 			fi
-			if [ "$lsb_dist" = "fedora" ]; then
+			if [ "$lsb_dist" = "fedora" ] || [ "$dist_version" >= 8 ]; then
 				pkg_manager="dnf"
 				config_manager="dnf config-manager"
 				enable_channel_flag="--set-enabled"
@@ -367,21 +368,51 @@ do_install() {
 				if ! is_dry_run; then
 					set -x
 				fi
-				$sh_c "$pkg_manager install -y -q $pre_reqs $pkg_epel"
-				$sh_c "$pkg_manager makecache"
-				$sh_c "$pkg_manager -y -q install httpd mod_ssl mod_http2"
-				$sh_c "$pkg_manager install -y -q $yum_repo"
-				$sh_c "$pkg_manager -y -q module install php:remi-7.4"
-				$sh_c "$pkg_manager -y -q install php php-{cli,common,devel,fedora-autoloader.noarch,gd,gmp,json,ldap,mbstring,mcrypt,mysqlnd,opcache,pdo,pear.noarch,pecl-amqp,pecl-ssh2,pecl-zip,process,snmp,xml,pecl-mongodb,pecl-amqp}"
-				$sh_c "sed -i '/mpm_prefork_module/ s/^#//' /etc/httpd/conf.modules.d/00-mpm.conf && sed -i '/mpm_event_module/ s/^/#/g' /etc/httpd/conf.modules.d/00-mpm.conf" 
-				$sh_c "$pkg_manager autoremove -y"
-				$sh_c "$pkg_manager -y install nmap git composer mariadb"
-				$sh_c "pear channel-update pear.php.net"
-				$sh_c "pear install Net_Nmap"
-				$su_c "$pkg_manager clean all"
-				$su_c "curl -s "http://www.sourceguardian.com/loaders/download.php?php_v=7.4.30&php_ts=0&php_is=8&os_s=Linux&os_r=4.18.0-408.el8.x86_64&os_m=x86_64" -o /usr/lib64/php/modules/ixed.7.4.lin"
-				$su_c "echo "extension=ixed.7.4.lin" | tee -a /etc/php.ini"
 				
+				if is_wsl; then
+					
+					echo "WSL DETECTED: We recommend using apache2 for Windows."
+					$sh_c "$pkg_manager install -y -q $pre_reqs $pkg_epel"
+					$sh_c "$pkg_manager makecache"
+					$sh_c "$pkg_manager -y -q install httpd mod_ssl mod_http2"
+					$sh_c "$pkg_manager install -y -q $yum_repo"
+					$sh_c "$pkg_manager -y -q module install php:remi-7.4"
+					$sh_c "$pkg_manager -y -q install php php-{cli,common,devel,fedora-autoloader.noarch,gd,gmp,json,ldap,mbstring,mcrypt,mysqlnd,opcache,pdo,pear.noarch,pecl-amqp,pecl-ssh2,pecl-zip,process,snmp,xml,pecl-mongodb,pecl-amqp}"
+					$sh_c "sed -i '/mpm_prefork_module/ s/^#//' /etc/httpd/conf.modules.d/00-mpm.conf && sed -i '/mpm_event_module/ s/^/#/g' /etc/httpd/conf.modules.d/00-mpm.conf" 
+					$sh_c "$pkg_manager autoremove -y"
+					$sh_c "$pkg_manager -y install nmap git composer mariadb"
+					$sh_c "pear channel-update pear.php.net"
+					$sh_c "pear install Net_Nmap"
+
+					if [ $dist_version >= 8 ] then
+					$su_c "$pkg_manager clean all"
+					fi
+					
+					$su_c "curl -s "http://www.sourceguardian.com/loaders/download.php?php_v=7.4.30&php_ts=0&php_is=8&os_s=Linux&os_r=4.18.0-408.el8.x86_64&os_m=x86_64" -o /usr/lib64/php/modules/ixed.7.4.lin"
+					$su_c "echo "extension=ixed.7.4.lin" | tee -a /etc/php.ini"
+				else
+
+					$sh_c "$pkg_manager install -y -q $pre_reqs $pkg_epel"
+					$sh_c "$pkg_manager makecache"
+					$sh_c "$pkg_manager -y -q install httpd mod_ssl mod_http2"
+					$sh_c "$pkg_manager install -y -q $yum_repo"
+					$sh_c "$pkg_manager -y -q module install php:remi-7.4"
+					$sh_c "$pkg_manager -y -q install php php-{cli,common,devel,fedora-autoloader.noarch,gd,gmp,json,ldap,mbstring,mcrypt,mysqlnd,opcache,pdo,pear.noarch,pecl-amqp,pecl-ssh2,pecl-zip,process,snmp,xml,pecl-mongodb,pecl-amqp}"
+					$sh_c "sed -i '/mpm_prefork_module/ s/^#//' /etc/httpd/conf.modules.d/00-mpm.conf && sed -i '/mpm_event_module/ s/^/#/g' /etc/httpd/conf.modules.d/00-mpm.conf" 
+					$sh_c "$pkg_manager autoremove -y"
+					$sh_c "$pkg_manager -y install nmap git composer mariadb"
+					$sh_c "pear channel-update pear.php.net"
+					$sh_c "pear install Net_Nmap"
+
+					if [ $dist_version >= 8 ] then
+					$su_c "$pkg_manager clean all"
+					fi
+					
+					$su_c "curl -s "http://www.sourceguardian.com/loaders/download.php?php_v=7.4.30&php_ts=0&php_is=8&os_s=Linux&os_r=4.18.0-408.el8.x86_64&os_m=x86_64" -o /usr/lib64/php/modules/ixed.7.4.lin"
+					$su_c "echo "extension=ixed.7.4.lin" | tee -a /etc/php.ini"
+
+				fi
+
 			)
 			echo_run_as_nonroot
 			exit 0
