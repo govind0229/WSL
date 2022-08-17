@@ -1,6 +1,23 @@
 #!/bin/sh
 set -e
 
+DRY_RUN=${DRY_RUN:-}
+while [ $# -gt 0 ]; do
+	case "$1" in
+		--mirror)
+			mirror="$2"
+			shift
+			;;
+		--dry-run)
+			DRY_RUN=1
+			;;
+		--*)
+			echo "Illegal option $1"
+			;;
+	esac
+	shift $(( $# > 0 ? 1 : 0 ))
+done
+
 is_dry_run() {
 	if [ -z "$DRY_RUN" ]; then
 		return 1
