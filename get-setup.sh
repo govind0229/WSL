@@ -193,7 +193,7 @@ do_install() {
 			EOF
 			
 			if is_wsl; then
-				echo "WSL DETECTED: We recommend using apache2 for Windows."
+				echo "WSL DETECTED: We recommend using httpd for Windows."
 				
 				ssh-keygen -A
 				cd /etc/ssh/ 
@@ -321,18 +321,18 @@ do_install() {
 				if ! is_dry_run; then
 					set -x
 				fi
-				$sh_c 'apt-get update -qq >/dev/null'
-                $sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y -qq $pre_reqs >/dev/null"
-				$sh_c "apt-get install apache2 nmap -y -qq >/dev/null"
-                $sh_c "apt-get install php-{cli,pear,dev,common,gd,gmp,json,ldap,mbstring,mysqlnd,opcache,pdo,pear,ssh2,snmp,xml,zip,mongodb,amqp,mcrypt} -y -qq >/dev/null"
+				$sh_c 'apt-get update -y>/dev/null'
+                $sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y  $pre_reqs >/dev/null"
+				$sh_c "apt-get install apache2 nmap -y  >/dev/null"
+                $sh_c "apt-get install php-{cli,pear,dev,common,gd,gmp,json,ldap,mbstring,mysqlnd,opcache,pdo,pear,ssh2,snmp,xml,zip,mongodb,amqp,mcrypt} -y  >/dev/null"
                 $sh_c "DEBIAN_FRONTEND=noninteractive pecl channel-update pear.php.net >/dev/null"
                 $sh_c "DEBIAN_FRONTEND=noninteractive pear install Net_Nmap >/dev/null"
-                $sh_c "apt-get install rabbitmq-server erlang mongodb -y -qq >/dev/null"
+                $sh_c "apt-get install rabbitmq-server erlang mongodb -y  >/dev/null"
 				$su_c "apt-key adv --fetch-keys 'https://mariadb.org/mariadb_release_signing_key.asc'"
 				$su_c "add-apt-repository 'deb [arch=amd64] http://mariadb.mirror.globo.tech/repo/10.9/ubuntu focal main'"
-				$su_c "apt update -y -qq >/dev/null"
-				$su_c "apt-get install mariadb-server mariadb-client -y -qq >/dev/null"
-				$sh_c 'apt-get update -qq >/dev/null'
+				$su_c "apt update -y  >/dev/null"
+				$su_c "apt-get install mariadb-server mariadb-client -y  >/dev/null"
+				$sh_c 'apt-get update -y >/dev/null'
 				$su_c "apt-get clean"
 				
             )
@@ -378,16 +378,14 @@ do_install() {
 				fi
 				
 				if is_wsl; then
-					echo ''
 					echo "WSL DETECTED: We recommend using apache2 for Windows."
-					echo ''
-
-					$sh_c "$pkg_manager install -y -q $pre_reqs $pkg_epel"
+					
+					$sh_c "$pkg_manager install -y  $pre_reqs $pkg_epel"
 					$sh_c "$pkg_manager makecache"
-					$sh_c "$pkg_manager -y -q install httpd mod_ssl mod_http2"
-					$sh_c "$pkg_manager install -y -q $yum_repo"
-					$sh_c "$pkg_manager -y -q module install php:remi-7.4"
-					$sh_c "$pkg_manager -y -q install php php-{cli,common,devel,fedora-autoloader.noarch,gd,gmp,json,ldap,mbstring,mcrypt,mysqlnd,opcache,pdo,pear.noarch,pecl-amqp,pecl-ssh2,pecl-zip,process,snmp,xml,pecl-mongodb,pecl-amqp}"
+					$sh_c "$pkg_manager -y  install httpd mod_ssl mod_http2"
+					$sh_c "$pkg_manager install -y  $yum_repo"
+					$sh_c "$pkg_manager -y  module install php:remi-7.4"
+					$sh_c "$pkg_manager -y  install php php-{cli,common,devel,fedora-autoloader.noarch,gd,gmp,json,ldap,mbstring,mcrypt,mysqlnd,opcache,pdo,pear.noarch,pecl-amqp,pecl-ssh2,pecl-zip,process,snmp,xml,pecl-mongodb,pecl-amqp}"
 					$sh_c "sed -i '/mpm_prefork_module/ s/^#//' /etc/httpd/conf.modules.d/00-mpm.conf && sed -i '/mpm_event_module/ s/^/#/g' /etc/httpd/conf.modules.d/00-mpm.conf" 
 					$sh_c "$pkg_manager autoremove -y"
 					$sh_c "$pkg_manager -y install nmap git composer mariadb"
@@ -402,12 +400,12 @@ do_install() {
 					$su_c "echo "extension=ixed.7.4.lin" | tee -a /etc/php.ini"
 				else
 
-					$sh_c "$pkg_manager install -y -q $pre_reqs $pkg_epel"
+					$sh_c "$pkg_manager install -y  $pre_reqs $pkg_epel"
 					$sh_c "$pkg_manager makecache"
-					$sh_c "$pkg_manager -y -q install httpd mod_ssl mod_http2"
-					$sh_c "$pkg_manager install -y -q $yum_repo"
-					$sh_c "$pkg_manager -y -q module install php:remi-7.4"
-					$sh_c "$pkg_manager -y -q install php php-{cli,common,devel,fedora-autoloader.noarch,gd,gmp,json,ldap,mbstring,mcrypt,mysqlnd,opcache,pdo,pear.noarch,pecl-amqp,pecl-ssh2,pecl-zip,process,snmp,xml,pecl-mongodb,pecl-amqp}"
+					$sh_c "$pkg_manager -y  install httpd mod_ssl mod_http2"
+					$sh_c "$pkg_manager install -y  $yum_repo"
+					$sh_c "$pkg_manager -y  module install php:remi-7.4"
+					$sh_c "$pkg_manager -y  install php php-{cli,common,devel,fedora-autoloader.noarch,gd,gmp,json,ldap,mbstring,mcrypt,mysqlnd,opcache,pdo,pear.noarch,pecl-amqp,pecl-ssh2,pecl-zip,process,snmp,xml,pecl-mongodb,pecl-amqp}"
 					$sh_c "sed -i '/mpm_prefork_module/ s/^#//' /etc/httpd/conf.modules.d/00-mpm.conf && sed -i '/mpm_event_module/ s/^/#/g' /etc/httpd/conf.modules.d/00-mpm.conf" 
 					$sh_c "$pkg_manager autoremove -y"
 					$sh_c "$pkg_manager -y install nmap git composer mariadb"
