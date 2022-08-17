@@ -307,9 +307,7 @@ do_install() {
 			fi
 			(
 				if ! is_wsl; then
-				
 					echo "WSL DETECTED: We recommend using apache2 for Windows."
-
 					$sh_c 'apt-get update -y>/dev/null'
 					$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y  $pre_reqs >/dev/null"
 					$sh_c "apt-get install apache2 nmap -y  >/dev/null"
@@ -324,7 +322,6 @@ do_install() {
 					$sh_c 'apt-get update -y >/dev/null'
 					$su_c "apt-get clean"
 				else
-
 					$sh_c 'apt-get update -y>/dev/null'
 					$sh_c "DEBIAN_FRONTEND=noninteractive apt-get install -y  $pre_reqs >/dev/null"
 					$sh_c "apt-get install apache2 nmap -y  >/dev/null"
@@ -381,6 +378,7 @@ do_install() {
 				if is_wsl; then
 					echo "WSL DETECTED: We recommend using Httpd for Windows."
 					
+					$sh_c "$pkg_manager clean all"
 					$sh_c "$pkg_manager install -y  $pre_reqs $pkg_epel"
 					$sh_c "$pkg_manager makecache"
 					$sh_c "$pkg_manager -y  install httpd mod_ssl mod_http2"
@@ -400,7 +398,7 @@ do_install() {
 					$su_c "curl -s "http://www.sourceguardian.com/loaders/download.php?php_v=7.4.30&php_ts=0&php_is=8&os_s=Linux&os_r=4.18.0-408.el8.x86_64&os_m=x86_64" -o /usr/lib64/php/modules/ixed.7.4.lin"
 					$su_c "echo "extension=ixed.7.4.lin" | tee -a /etc/php.ini"
 				else
-
+					$sh_c "$pkg_manager clean all"
 					$sh_c "$pkg_manager install -y  $pre_reqs $pkg_epel"
 					$sh_c "$pkg_manager makecache"
 					$sh_c "$pkg_manager -y  install httpd mod_ssl mod_http2"
