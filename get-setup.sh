@@ -347,7 +347,7 @@ do_install() {
 				echo "Error: Unable to curl repository file $remi_repo, is it valid?"
 				exit 1
 			fi
-			if [ "$lsb_dist" = "fedora" ] && [ "$dist_version" >= 8 ]; then
+			if [ "$lsb_dist" = "fedora" ]; then 
 				pkg_manager="dnf"
 				config_manager="dnf config-manager"
 				enable_channel_flag="--set-enabled"
@@ -355,6 +355,14 @@ do_install() {
 				pre_reqs="dnf-plugins-core"
 				pkg_suffix="fc$dist_version"
 				pkg_epel="epel-release"
+			elif [ "$lsb_dist" = "fedora" ] || [ "$dist_version" = '8' ]; then
+				pkg_manager="dnf"
+				config_manager="dnf config-manager"
+				enable_channel_flag="--set-enabled"
+				disable_channel_flag="--set-disabled"
+				pre_reqs="dnf-plugins-core"
+				pkg_suffix="el"
+				pkg_epel="https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm"
 			else
 				pkg_manager="yum"
 				config_manager="yum-config-manager"
